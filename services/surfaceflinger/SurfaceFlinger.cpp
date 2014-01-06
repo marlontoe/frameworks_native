@@ -2370,6 +2370,8 @@ void SurfaceFlinger::onInitializeDisplays() {
     Vector<ComposerState> state;
     Vector<DisplayState> displays;
     DisplayState d;
+    sp<const DisplayDevice> hw(getDefaultDisplayDevice());
+
     d.what = DisplayState::eDisplayProjectionChanged |
              DisplayState::eLayerStackChanged;
     d.token = mBuiltinDisplays[DisplayDevice::DISPLAY_PRIMARY];
@@ -2379,6 +2381,8 @@ void SurfaceFlinger::onInitializeDisplays() {
     d.viewport.makeInvalid();
     displays.add(d);
     setTransactionState(state, displays, 0);
+    
+    getHwComposer().release(hw->getDisplayType());
     onScreenAcquired(getDefaultDisplayDevice());
 
     const nsecs_t period =
