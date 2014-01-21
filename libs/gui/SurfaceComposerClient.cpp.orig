@@ -515,11 +515,12 @@ sp<SurfaceControl> SurfaceComposerClient::createSurface(
         sp<IGraphicBufferProducer> gbp;
         status_t err = mClient->createSurface(name, w, h, format, flags,
                 &handle, &gbp);
-        ALOGE_IF(err, "SurfaceComposerClient::createSurface error %s", strerror(-err));
+        ALOGE_IF(err, "SurfaceComposerClient::createSurface(%s) error %s", name.string(), strerror(-err));
         if (err == NO_ERROR) {
             sur = new SurfaceControl(this, handle, gbp);
         }
-    }
+    } else
+        ALOGE("SurfaceComposerClient::createSurface(%s) error. Status = %s", name.string(), strerror(-mStatus));
     return sur;
 }
 
@@ -814,15 +815,13 @@ PixelFormat ScreenshotClient::getFormat() const {
     return mBuffer.format;
 }
 
-#ifdef SCREENSHOT_CLIENT_STRIDE_HACK
 uint32_t ScreenshotClient::getStride() const {
+<<<<<<< HEAD
     return mBuffer.width;
-}
-#else
-uint32_t ScreenshotClient::getStride() const {
+=======
 	return mBuffer.width;
+>>>>>>> 00d1de1... fix screenshot and preview distortions
 }
-#endif
 
 size_t ScreenshotClient::getSize() const {
     return mBuffer.stride * mBuffer.height * bytesPerPixel(mBuffer.format);
