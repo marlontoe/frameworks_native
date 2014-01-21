@@ -515,11 +515,12 @@ sp<SurfaceControl> SurfaceComposerClient::createSurface(
         sp<IGraphicBufferProducer> gbp;
         status_t err = mClient->createSurface(name, w, h, format, flags,
                 &handle, &gbp);
-        ALOGE_IF(err, "SurfaceComposerClient::createSurface error %s", strerror(-err));
+        ALOGE_IF(err, "SurfaceComposerClient::createSurface(%s) error %s", name.string(), strerror(-err));
         if (err == NO_ERROR) {
             sur = new SurfaceControl(this, handle, gbp);
         }
-    }
+    } else
+        ALOGE("SurfaceComposerClient::createSurface(%s) error. Status = %s", name.string(), strerror(-mStatus));
     return sur;
 }
 
@@ -655,13 +656,14 @@ void SurfaceComposerClient::unblankDisplay(const sp<IBinder>& token) {
     ComposerService::getComposerService()->unblank(token);
 }
 
-#if defined(LS_NATIVE)
+// TODO: Remove me.  Do not use.
+// This is a compatibility shim for one product whose drivers are depending on
+// this legacy function (when they shouldn't).
 status_t SurfaceComposerClient::getDisplayInfo(
         int32_t displayId, DisplayInfo* info)
 {
     return getDisplayInfo(getBuiltInDisplay(displayId), info);
 }
-#endif
 
 #if defined(ICS_CAMERA_BLOB) || defined(MR0_CAMERA_BLOB)
 ssize_t SurfaceComposerClient::getDisplayWidth(int32_t displayId) {
@@ -720,7 +722,7 @@ ScreenshotClient::~ScreenshotClient() {
     ScreenshotClient::release();
 }
 
-#if defined(TOROPLUS_RADIO) || defined(LS_NATIVE)
+#if defined(TOROPLUS_RADIO)
 status_t ScreenshotClient::update() {
     sp<ISurfaceComposer> sm(ComposerService::getComposerService());
     return update(sm->getBuiltInDisplay(0));
@@ -813,15 +815,13 @@ PixelFormat ScreenshotClient::getFormat() const {
     return mBuffer.format;
 }
 
-#ifdef SCREENSHOT_CLIENT_STRIDE_HACK
 uint32_t ScreenshotClient::getStride() const {
+<<<<<<< HEAD
     return mBuffer.width;
-}
-#else
-uint32_t ScreenshotClient::getStride() const {
+=======
 	return mBuffer.width;
+>>>>>>> 00d1de1... fix screenshot and preview distortions
 }
-#endif
 
 size_t ScreenshotClient::getSize() const {
     return mBuffer.stride * mBuffer.height * bytesPerPixel(mBuffer.format);
